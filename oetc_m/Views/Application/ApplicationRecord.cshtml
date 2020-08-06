@@ -1,0 +1,213 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+
+}
+<link href="~/element-ui@2.11.0/theme-chalk/index.css" rel="stylesheet" />
+<link href="~/element-ui@2.11.0/theme-chalk/index-black.css" rel="stylesheet" />
+<link href="~/element-ui@2.11.0/theme-chalk/icon.css" rel="stylesheet" />
+<body>
+    <div id="text-center" style="height:500px">
+        <template>
+            <el-row>
+                <el-form :inline="true" size="small">
+                    <el-form-item label="申请状态">
+                        <el-select v-model="status" placeholder="请选择申请状态">
+                            <el-option v-for="item in options"
+                                       :key="item.value"
+                                       :label="item.label"
+                                       :value="item.value">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="使用人">
+                        <el-input v-model="user" placeholder="使用人姓名"></el-input>
+                    </el-form-item>
+                    <el-form-item label="号码">
+                        <el-input v-model="phoneNumber" placeholder="号码"></el-input>
+                    </el-form-item>
+                    <el-form-item label="门禁地址">
+                        <el-select v-model="address" placeholder="请选择门禁地址">
+                            <el-option v-for="item in addressList"
+                                       :key="item.accessControlAddressName"
+                                       :label="item.accessControlAddressName"
+                                       :value="item.accessControlAddressName">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="申请时间">
+                        <el-date-picker v-model="applicationTime"
+                                        type="datetimerange"
+                                        :picker-options="pickerOptions"
+                                        range-separator="至"
+                                        start-placeholder="开始日期"
+                                        end-placeholder="结束日期"
+                                        align="right">
+                        </el-date-picker>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button type="primary" v-on:click="queryBtn">查询</el-button>
+                    </el-form-item>
+                </el-form>
+            </el-row>
+            <el-row>
+                <el-table :data="tableData"
+                          style="width: 100%">
+                    <el-table-column prop="id" label="id" width="50"></el-table-column>
+                    <el-table-column prop="name" label="使用人" width="100"></el-table-column>
+                    <el-table-column prop="address" label="门禁地址" width="150"></el-table-column>
+                    <el-table-column prop="applicationTime" label="申请时间" width="150"></el-table-column>
+                    <el-table-column prop="agreeTime" label="同意时间" width="150"></el-table-column>
+                    <el-table-column prop="leaveTime" label="退出时间" width="150"></el-table-column>
+                    <el-table-column prop="status" label="状态" width="120"></el-table-column>
+                    <el-table-column label="操作">
+                        <template slot-scope="scope">
+                            <el-button size="mini"
+                                       v-on:click="detail(scope.row.id)">查看详情</el-button>
+                        </template>    
+                    </el-table-column>
+                </el-table>
+            </el-row>
+            <el-row>
+                <el-pagination v-on:size-change="handleSizeChange"
+                               v-on:current-change="handleCurrentChange"
+                               :current-page="page.currentPage"
+                               :page-sizes="[10, 20, 30, 40]"
+                               :page-size=page.pageSize
+                               layout="total, sizes, prev, pager, next, jumper"
+                               :total=page.total>
+                </el-pagination>
+            </el-row>
+        </template>
+    </div>
+
+    <script src="~/js/vue.min.js"></script>
+    <script src="~/element-ui@2.11.0/index.js"></script>
+    <script>
+        var Main = {
+            data() {
+                return {
+                    pickerOptions: {
+                        shortcuts: [{
+                            text: '最近一周',
+                            onClick(picker) {
+                                const end = new Date();
+                                const start = new Date();
+                                start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+                                picker.$emit('pick', [start, end]);
+                            }
+                        }, {
+                            text: '最近一个月',
+                            onClick(picker) {
+                                const end = new Date();
+                                const start = new Date();
+                                start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+                                picker.$emit('pick', [start, end]);
+                            }
+                        }, {
+                            text: '最近三个月',
+                            onClick(picker) {
+                                const end = new Date();
+                                const start = new Date();
+                                start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+                                picker.$emit('pick', [start, end]);
+                            }
+                        }]
+                    },
+                    applicationTime:'',
+                    user: '',
+                    phoneNumber:'',
+                    status: '',
+                    options: [
+                        {
+                            value: 1,
+                            label: "已申请"
+                        },
+                        {
+                            value: 2,
+                            label: "已同意进入"
+                        },
+                        {
+                            value: 3,
+                            label: "已退出"
+                        }
+                    ],
+                    address: '',
+                    addressList:[],
+                    tableData: [],
+
+                    page: {
+                        currentPage: 1,
+                        total: 0,
+                        pageSize:10
+                    }
+                }
+            },
+            methods: {
+                submitQuery() {
+                    data = {
+                        "user": this.user,
+                        "phoneNumber": this.phoneNumber,
+                        "status": this.status,
+                        "address": this.address,
+                        "applicationTimeRange": this.applicationTime,
+                        "currentPage": this.page.currentPage,
+                        "pageSize": this.page.pageSize
+                    };
+                    let _self = this;
+                    $.ajax({
+                        type: 'post',
+                        dataType: 'json',
+                        url: '../../api/application/application/query',
+                        contentType:'application/json',
+                        data: JSON.stringify(data),
+                        success: function (data) {
+
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            if (errorThrown == "Unauthorized") {
+                                window.parent.MainIndex.openLoginFrom();
+                                _self.$message({
+                                    type: 'error',
+                                    message: XMLHttpRequest.responseJSON.msg
+                                });
+                            } else {
+                                _self.$message({
+                                    type: 'error',
+                                    message: errorThrown
+                                });
+                            }
+                        }
+                    });
+                },
+                queryBtn() {
+                    this.submitQuery();
+                },
+                getAddressList() {
+                    let _self = this;
+                    $.ajax({
+                        type: 'get',
+                        url: '../../api/address',
+                        success: function (data) {
+                            _self.addressList = data;
+                        }
+                    });
+                },
+                handleSizeChange(val) {
+                    this.page.pageSize = val;
+                    this.submitQuery();
+                },
+                handleCurrentChange(val) {
+
+                }
+
+            },
+            created() {
+                this.getAddressList();
+            }
+        };
+        var Ctor = Vue.extend(Main);
+        new Ctor().$mount('#text-center');
+    </script>
+</body>
