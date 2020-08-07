@@ -8,7 +8,7 @@ namespace oetc_m.Data.Enum
     public enum ApplicationStatus
     {
         AlreadyApplied = 1,
-        approved = 2,
-        exited = 3
+        Approved = 2,
+        Exited = 3
     }
 }

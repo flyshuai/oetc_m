@@ -12,9 +12,9 @@ namespace oetc_m.Models.Dto
 
         public string PhoneNumber { get; set; }
 
-        public string AccessControlAddress { get; set; }
+        public List<string> AccessControlAddressList { get; set; }
 
-        public ApplicationStatus Status { get; set; }
+        public List<ApplicationStatus> StatusList { get; set; }
 
         public List<DateTime> ApplicationTimeRange { get; set; }
 

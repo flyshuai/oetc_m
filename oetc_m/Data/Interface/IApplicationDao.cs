@@ -1,4 +1,5 @@
 ﻿using oetc_m.Data.Entity;
+using oetc_m.Models.Dto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,5 +13,6 @@ namespace oetc_m.Data.Interface
         bool IsHaveRecordCode(int num);
         ApplicationRecord SingleGetByRecordCode(string code);
         int SingleUpdate(ApplicationRecord record);
+        List<ApplicationRecord> Search(ApplicationSearchDto searchDto);
     }
 }

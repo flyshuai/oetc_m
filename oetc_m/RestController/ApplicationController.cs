@@ -11,6 +11,7 @@ using oetc_m.Data.Interface;
 using oetc_m.Helper;
 using oetc_m.Models;
 using oetc_m.Models.Dto;
+using oetc_m.Service.Interface;
 
 namespace oetc_m.RestController
 {
@@ -20,11 +21,16 @@ namespace oetc_m.RestController
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
         private IApplicationDao _applicationDao;
+        private IApplicationService _applicationService;
 
-        public ApplicationController(IWebHostEnvironment webHostEnvironment, IApplicationDao applicationDao)
+        public ApplicationController(IWebHostEnvironment webHostEnvironment, 
+            IApplicationDao applicationDao,
+            IApplicationService applicationService
+            )
         {
             _webHostEnvironment = webHostEnvironment;
             _applicationDao = applicationDao;
+            _applicationService = applicationService;
         }
 
         [HttpPost("submitapplication")]
@@ -107,7 +113,7 @@ namespace oetc_m.RestController
             
             if (isImgSave)
             {
-                applicationRecord.Status = ApplicationStatus.exited;
+                applicationRecord.Status = ApplicationStatus.Exited;
                 applicationRecord.LeaveTime = DateTime.Now;
                 applicationRecord.LeavePictureSrc = "/leave/" + DateTime.Now.ToString("yyyy-MM-dd") + "/" + newFileName;
                 int excute = _applicationDao.SingleUpdate(applicationRecord);
@@ -127,7 +133,7 @@ namespace oetc_m.RestController
         public ResponsePageObj<ApplicationRecordDto> ApplicationRecordQuery(ApplicationSearchDto searchDto)
         {
             ResponsePageObj<ApplicationRecordDto> res = new ResponsePageObj<ApplicationRecordDto>();
-
+            res = _applicationService.SearchApplication(searchDto);
             return res;
         }
     }

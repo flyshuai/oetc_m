@@ -13,6 +13,8 @@ using oetc_m.Controllers;
 using oetc_m.Data;
 using oetc_m.Data.Impl;
 using oetc_m.Data.Interface;
+using oetc_m.Service.Impl;
+using oetc_m.Service.Interface;
 
 namespace oetc_m
 {
@@ -32,6 +34,7 @@ namespace oetc_m
             services.AddDbContext<HomeDbContext>(options => options.UseMySQL(Configuration.GetConnectionString("ConnStr")));
             services.AddScoped<IAddressDao, AddressDao>();
             services.AddScoped<IApplicationDao, ApplicationDao>();
+            services.AddScoped<IApplicationService, ApplicationService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

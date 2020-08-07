@@ -12,8 +12,8 @@
         <template>
             <el-row>
                 <el-form :inline="true" size="small">
-                    <el-form-item label="申请状态">
-                        <el-select v-model="status" placeholder="请选择申请状态">
+                    <el-form-item label="申请状态" >
+                        <el-select v-model="status" placeholder="请选择申请状态" multiple>
                             <el-option v-for="item in options"
                                        :key="item.value"
                                        :label="item.label"
@@ -28,7 +28,7 @@
                         <el-input v-model="phoneNumber" placeholder="号码"></el-input>
                     </el-form-item>
                     <el-form-item label="门禁地址">
-                        <el-select v-model="address" placeholder="请选择门禁地址">
+                        <el-select v-model="address" placeholder="请选择门禁地址" multiple>
                             <el-option v-for="item in addressList"
                                        :key="item.accessControlAddressName"
                                        :label="item.accessControlAddressName"
@@ -54,19 +54,41 @@
             <el-row>
                 <el-table :data="tableData"
                           style="width: 100%">
-                    <el-table-column prop="id" label="id" width="50"></el-table-column>
-                    <el-table-column prop="name" label="使用人" width="100"></el-table-column>
-                    <el-table-column prop="address" label="门禁地址" width="150"></el-table-column>
-                    <el-table-column prop="applicationTime" label="申请时间" width="150"></el-table-column>
-                    <el-table-column prop="agreeTime" label="同意时间" width="150"></el-table-column>
-                    <el-table-column prop="leaveTime" label="退出时间" width="150"></el-table-column>
-                    <el-table-column prop="status" label="状态" width="120"></el-table-column>
-                    <el-table-column label="操作">
-                        <template slot-scope="scope">
-                            <el-button size="mini"
-                                       v-on:click="detail(scope.row.id)">查看详情</el-button>
-                        </template>    
-                    </el-table-column>
+                    <el-table-column align="right">
+                        <template slot="header" slot-scope="scope">
+                            <el-button type="primary" v-on:click="" size="small">导出到excel</el-button>
+                        </template>
+                        <el-table-column prop="id" label="id" width="50"></el-table-column>
+                        <el-table-column prop="name" label="使用人" width="100"></el-table-column>
+                        <el-table-column prop="accessControlAddress" label="门禁地址" width="150"></el-table-column>
+                        <el-table-column prop="applicationTime" label="申请时间" width="160"></el-table-column>
+                        <el-table-column prop="agreeTime" label="同意时间" width="160">
+                            <template slot-scope="scope">
+                                <el-tag type="danger" v-if="scope.row.status == 1">申请中</el-tag>
+                                <div v-else>{{scope.row.agreeTime}}</div>
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="leaveTime" label="退出时间" width="160">
+                            <template slot-scope="scope">
+                                <el-tag type="danger" v-if="scope.row.status == 1">申请中</el-tag>
+                                <el-tag type="danger" v-if="scope.row.status == 2">未退出</el-tag>
+                                <div v-else>{{scope.row.leaveTime}}</div>
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="status" label="状态" width="120">
+                            <template slot-scope="scope">
+                                <el-tag type="success" v-if="scope.row.status == 3">已退出</el-tag>
+                                <el-tag v-if="scope.row.status == 2">已同意进入</el-tag>
+                                <el-tag type="danger" v-if="scope.row.status == 1">已申请</el-tag>
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="recordCode" label="编码" width="100"></el-table-column>
+                        <el-table-column label="操作">
+                            <template slot-scope="scope">
+                                <el-button size="mini"
+                                           v-on:click="detail(scope.row.id)">查看详情</el-button>
+                            </template>
+                        </el-table-column>
                 </el-table>
             </el-row>
             <el-row>
@@ -115,10 +137,10 @@
                             }
                         }]
                     },
-                    applicationTime:'',
+                    applicationTime:[],
                     user: '',
                     phoneNumber:'',
-                    status: '',
+                    status: [],
                     options: [
                         {
                             value: 1,
@@ -133,14 +155,14 @@
                             label: "已退出"
                         }
                     ],
-                    address: '',
+                    address: [],
                     addressList:[],
                     tableData: [],
 
                     page: {
                         currentPage: 1,
                         total: 0,
-                        pageSize:10
+                        pageSize:10,
                     }
                 }
             },
@@ -149,8 +171,8 @@
                     data = {
                         "user": this.user,
                         "phoneNumber": this.phoneNumber,
-                        "status": this.status,
-                        "address": this.address,
+                        "statusList": this.status,
+                        "accessControlAddressList": this.address,
                         "applicationTimeRange": this.applicationTime,
                         "currentPage": this.page.currentPage,
                         "pageSize": this.page.pageSize
@@ -163,7 +185,10 @@
                         contentType:'application/json',
                         data: JSON.stringify(data),
                         success: function (data) {
-
+                            if (data.success) {
+                                _self.tableData = data.data;
+                                _self.page.total = data.page.totalCount;
+                            }
                         },
                         error: function (XMLHttpRequest, textStatus, errorThrown) {
                             if (errorThrown == "Unauthorized") {
@@ -199,12 +224,14 @@
                     this.submitQuery();
                 },
                 handleCurrentChange(val) {
-
+                    this.page.currentPage = val;
+                    this.submitQuery();
                 }
 
             },
             created() {
                 this.getAddressList();
+                this.submitQuery();
             }
         };
         var Ctor = Vue.extend(Main);
