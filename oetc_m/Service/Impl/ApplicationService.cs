@@ -1,6 +1,7 @@
 ﻿using oetc_m.Data.Entity;
 using oetc_m.Data.Enum;
 using oetc_m.Data.Interface;
+using oetc_m.Helper;
 using oetc_m.Models;
 using oetc_m.Models.Dto;
 using oetc_m.Service.Interface;
@@ -18,6 +19,45 @@ namespace oetc_m.Service.Impl
         {
             _applicationDao = applicationDao;
         }
+
+        public ReturnObj<string> CreateExcel(ApplicationSearchDto searchDto, string rootPath)
+        {
+            try
+            {
+                List<ApplicationRecord> applicationRecords = _applicationDao.Search(searchDto);
+
+                ExcelHelper.CreatApplicationRecordExcel(applicationRecords,rootPath);
+            }
+            catch(Exception e)
+            {
+                throw e;
+            }
+            return new ReturnObj<string>();
+        }
+
+        public ReturnObj<ApplicationRecordDto> GetApplicationDetail(int id)
+        {
+            ReturnObj<ApplicationRecordDto> res = new ReturnObj<ApplicationRecordDto>();
+            ApplicationRecord applicationRecord = _applicationDao.SingleGet(id);
+            ApplicationRecordDto applicationRecordDto = new ApplicationRecordDto
+            {
+                Id = applicationRecord.Id,
+                Name = applicationRecord.Name,
+                Purpose = applicationRecord.Purpose,
+                ApplicationTime = applicationRecord.ApplicationTime,
+                AccessControlAddress = applicationRecord.AccessControlAddress,
+                LeaveTime = applicationRecord.LeaveTime,
+                EnterPictureSrc = "http://localhost:5000" + applicationRecord.EnterPictureSrc,
+                LeavePictureSrc = "http://localhost:5000" + applicationRecord.LeavePictureSrc,
+                Status = applicationRecord.Status,
+                RecordCode = applicationRecord.RecordCode,
+                PhoneNumber = applicationRecord.PhoneNumber
+            };
+            res.Data = applicationRecordDto;
+            res.Success = true;
+            return res;
+        }
+
         public ResponsePageObj<ApplicationRecordDto> SearchApplication(ApplicationSearchDto searchDto)
         {
             ResponsePageObj<ApplicationRecordDto> res = new ResponsePageObj<ApplicationRecordDto>();

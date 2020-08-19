@@ -68,6 +68,11 @@ namespace oetc_m.Data.Impl
             return result;
         }
 
+        public ApplicationRecord SingleGet(int id)
+        {
+            return Context.ApplicationRecords.SingleOrDefault(p => p.Id == id);
+        }
+
         public ApplicationRecord SingleGetByRecordCode(string code)
         {
             var list = Context.ApplicationRecords.Where(p => p.RecordCode == code && p.Status != ApplicationStatus.Exited);

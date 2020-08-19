@@ -14,5 +14,6 @@ namespace oetc_m.Data.Interface
         ApplicationRecord SingleGetByRecordCode(string code);
         int SingleUpdate(ApplicationRecord record);
         List<ApplicationRecord> Search(ApplicationSearchDto searchDto);
+        ApplicationRecord SingleGet(int id);
     }
 }

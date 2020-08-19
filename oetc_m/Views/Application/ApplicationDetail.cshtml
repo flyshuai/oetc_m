@@ -1,0 +1,122 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+<link href="~/element-ui@2.11.0/theme-chalk/index.css" rel="stylesheet" />
+<link href="~/element-ui@2.11.0/theme-chalk/index-black.css" rel="stylesheet" />
+<link href="~/element-ui@2.11.0/theme-chalk/icon.css" rel="stylesheet" />
+<body>
+    <div id="text-center">
+        <template>
+            <el-row>
+                <el-col :span="24" style="text-align:center;font-size:18px;padding-bottom:20px">
+                    申请详情
+                    <el-tag type="warning" v-if="form.status==1">已申请</el-tag>
+                    <el-tag type="success" v-if="form.status==3">已退出</el-tag>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-form ref="form" :model="form" label-width="95px" disabled>
+                    <el-row>
+                        <el-col :span="12">
+                            <el-form-item label="使用人" >
+                                <el-input v-model="form.name"></el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="12">
+                            <el-form-item label="号码">
+                                <el-input v-model="form.phoneNumber"></el-input>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="12">
+                            <el-form-item label="门禁地址">
+                                <el-input v-model="form.accessControlAddress"></el-input>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-form-item label="进入目的">
+                        <el-input v-model="form.purpose"></el-input>
+                    </el-form-item>
+                    <el-row>
+                        <el-col :span="12">
+                            <el-form-item label="申请时间">
+                                <el-date-picker type="date" placeholder="" v-model="form.applicationTime" style="width: 100%;"></el-date-picker>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="12">
+                            <el-form-item label="退出时间">
+                                <el-date-picker type="date" placeholder="" v-model="form.leaveTime" style="width: 100%;"></el-date-picker>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="12">
+                            <el-form-item label="进入前照片">
+                                <el-image :src="form.enterPictureSrc">
+                                    <div slot="error" class="image-slot">
+                                        <i class="el-icon-picture-outline"></i>
+                                    </div>
+                                </el-image>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="12">
+                            <el-form-item label="离开前照片">
+                                <el-image :src="form.leavePictureSrc">
+                                    <div slot="error" class="image-slot">
+                                        <i class="el-icon-picture-outline">还未离开</i>
+                                    </div>
+                                </el-image>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                        
+                </el-form>
+            </el-row>
+        </template>
+    </div>
+    <script src="~/js/vue.min.js"></script>
+    <script src="~/element-ui@2.11.0/index.js"></script>
+    <script>
+        var Main = {
+            data() {
+                return {
+                    form: {
+                        name: '',
+                        accessControlAddress: '',
+                        purpose: '',
+                        applicationTime: '',
+                        leaveTime: '',
+                        enterPictureSrc: '',
+                        leavePictureSrc: '',
+                        phoneNumber: '',
+                        status:void 0
+                    }
+                }
+            },
+            methods: {
+                getDetail() {
+                    let _self = this;
+                    $.ajax({
+                        type: 'GET',
+                        dataType: 'json',
+                        url: '../../api/application/application/@ViewData["id"]',
+                        success: function (res) {
+                            if (res.success) {
+                                _self.form = res.data;
+                                console.log(_self.form);
+                            }
+                        },
+                    });
+                }
+            },
+            created() {
+                this.getDetail();
+            }
+        };
+        var Ctor = Vue.extend(Main);
+        new Ctor().$mount('#text-center');
+    </script>
+</body>

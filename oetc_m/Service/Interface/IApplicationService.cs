@@ -10,5 +10,7 @@ namespace oetc_m.Service.Interface
     public interface IApplicationService
     {
         ResponsePageObj<ApplicationRecordDto> SearchApplication(ApplicationSearchDto searchDto);
+        ReturnObj<ApplicationRecordDto> GetApplicationDetail(int id);
+        ReturnObj<string> CreateExcel(ApplicationSearchDto searchDto, string rootPath);
     }
 }

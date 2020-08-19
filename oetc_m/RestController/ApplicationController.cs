@@ -136,5 +136,19 @@ namespace oetc_m.RestController
             res = _applicationService.SearchApplication(searchDto);
             return res;
         }
+
+        [HttpGet("application/{id}")]
+        public ReturnObj<ApplicationRecordDto> GetApplicationDetail(int id)
+        {
+            ReturnObj<ApplicationRecordDto> res = _applicationService.GetApplicationDetail(id);
+            return res;
+        }
+
+        [HttpPost("excel/create")]
+        public ReturnObj<string> CreateExcel(ApplicationSearchDto searchDto)
+        {
+            ReturnObj<string> res = _applicationService.CreateExcel(searchDto, _webHostEnvironment.WebRootPath);
+            return res;
+        }
     }
 }

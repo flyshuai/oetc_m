@@ -12,5 +12,10 @@ namespace oetc_m.Controllers
         {
             return View();
         }
+        public IActionResult ApplicationDetail(int id)
+        {
+            ViewData["id"] = id;
+            return View();
+        }
     }
 }
